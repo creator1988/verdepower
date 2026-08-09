@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
   const password = typeof body?.password === "string" ? body.password : "";
   const expected = process.env.PANEL_PASSWORD ?? "";
 
-  if (!expected || !safeEqual(password, expected)) {
+  // Comparamos hashes de longitud fija (en vez de las contraseñas crudas)
+  // para que la longitud de la contraseña nunca afecte el tiempo de respuesta.
+  if (!expected || !safeEqual(tokenForPassword(password), tokenForPassword(expected))) {
     return NextResponse.json({ error: "contraseña incorrecta" }, { status: 401 });
   }
 
@@ -25,5 +27,11 @@ export async function POST(req: NextRequest) {
     path: "/",
     maxAge: PANEL_SESSION_MAX_AGE,
   });
+  return res;
+}
+
+export async function DELETE() {
+  const res = NextResponse.json({ ok: true });
+  res.cookies.delete(PANEL_COOKIE_NAME);
   return res;
 }

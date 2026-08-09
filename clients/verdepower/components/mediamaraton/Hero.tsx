@@ -8,7 +8,7 @@ const SPEED_LINES = [
 
 export function Hero() {
   return (
-    <header className="relative px-5 pt-8 pb-3 text-center">
+    <header className="relative px-5 pt-6 pb-2 text-center">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-[0.1]"
@@ -23,12 +23,12 @@ export function Hero() {
       </div>
 
       <p className="relative mx-auto max-w-[20rem] text-sm font-semibold tracking-wide text-vp-white/60 uppercase sm:max-w-md">
-        ...sin activar primero mis músculos con Verde Power
+        No corro sin activar mis músculos con Verde Power
       </p>
       <h1 className="font-display relative mx-auto mt-1 max-w-[20rem] text-[1.75rem] leading-[1.05] font-black tracking-tight text-vp-white uppercase sm:max-w-md sm:text-4xl">
         No vas a correr sin activarte
       </h1>
-      <p className="relative mt-2 text-xs font-semibold tracking-wide text-vp-green uppercase sm:text-sm">
+      <p className="relative mt-1.5 text-xs font-semibold tracking-wide text-vp-green uppercase sm:text-sm">
         Mediamaratón Ciudad Bonita · Bucaramanga · 16 de agosto
       </p>
     </header>

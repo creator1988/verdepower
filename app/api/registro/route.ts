@@ -4,15 +4,9 @@ import { db } from "@/core/db/client";
 import { contactos } from "@/core/db/schema";
 import { verdepowerConfig, mediamaratonConfig } from "@/clients/verdepower/config";
 import { generarCodigo } from "@/clients/verdepower/codigo";
+import { normalizarWhatsapp } from "@/clients/verdepower/whatsapp";
 
 export const runtime = "nodejs";
-
-function normalizarWhatsapp(raw: string): string | null {
-  const digits = raw.replace(/\D/g, "");
-  if (digits.length === 10) return digits;
-  if (digits.length === 12 && digits.startsWith("57")) return digits.slice(2);
-  return null;
-}
 
 async function generarCodigoUnico(): Promise<string> {
   for (let intento = 0; intento < 6; intento++) {
@@ -34,23 +28,26 @@ export async function POST(req: NextRequest) {
   const telefono = normalizarWhatsapp(typeof body?.whatsapp === "string" ? body.whatsapp : "");
 
   if (nombre.length < 2) {
-    return NextResponse.json({ error: "nombre inválido" }, { status: 400 });
+    return NextResponse.json({ error: "el nombre debe tener al menos 2 caracteres" }, { status: 400 });
   }
   if (!telefono) {
-    return NextResponse.json({ error: "whatsapp inválido" }, { status: 400 });
+    return NextResponse.json({ error: "el WhatsApp debe tener 10 dígitos" }, { status: 400 });
   }
   if (!verdepowerConfig.clientId || !mediamaratonConfig.canalId) {
     return NextResponse.json({ error: "canal no configurado" }, { status: 500 });
   }
 
-  try {
-    const existente = await db
+  const buscarExistente = () =>
+    db
       .select({ codigo: contactos.codigo })
       .from(contactos)
       .where(
         and(eq(contactos.clientId, verdepowerConfig.clientId), eq(contactos.telefono, telefono))
       )
       .limit(1);
+
+  try {
+    const existente = await buscarExistente();
 
     if (existente.length > 0 && existente[0].codigo) {
       return NextResponse.json({ codigo: existente[0].codigo });
@@ -78,6 +75,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ codigo });
   } catch {
+    // Probable condición de carrera: dos solicitudes simultáneas con el mismo
+    // teléfono. Reintentamos leyendo el registro que ya debió quedar guardado.
+    try {
+      const existente = await buscarExistente();
+      if (existente.length > 0 && existente[0].codigo) {
+        return NextResponse.json({ codigo: existente[0].codigo });
+      }
+    } catch {
+      // se reporta el error original abajo
+    }
     return NextResponse.json({ error: "no pudimos guardar tu registro" }, { status: 500 });
   }
 }

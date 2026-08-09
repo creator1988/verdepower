@@ -69,12 +69,12 @@ body {
 }
 
 .vp-mist-circle {
-  animation: vp-mist 1.15s ease-out 1 forwards;
+  animation: vp-mist 1s ease-out 1 forwards;
 }
 
 .vp-reveal {
   opacity: 0;
-  animation: vp-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) 1.2s 1 forwards;
+  animation: vp-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.5s 1 forwards;
 }
 
 .vp-icon-pop {

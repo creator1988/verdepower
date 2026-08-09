@@ -22,7 +22,7 @@ export function Cupon({ codigo }: Props) {
           <p className="font-mono text-xl font-bold tracking-wider text-vp-navy sm:text-2xl">
             {codigo}
           </p>
-          <p className="text-[0.6rem] leading-tight font-medium text-vp-navy/70">
+          <p className="text-[0.65rem] leading-tight font-semibold text-vp-navy">
             Válido hasta
             <br />
             {mediamaratonConfig.cuponVigenciaHasta}

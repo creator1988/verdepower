@@ -19,17 +19,28 @@ type PanelData = {
 };
 
 const POLL_INTERVAL_MS = 18000;
+const FETCH_TIMEOUT_MS = 12000;
+
+function fetchConTimeout(input: string, init?: RequestInit) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() =>
+    clearTimeout(timeoutId)
+  );
+}
 
 export function PanelDashboard() {
   const [data, setData] = useState<PanelData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [soloPendientes, setSoloPendientes] = useState(false);
   const [pendientes, setPendientes] = useState<Set<string>>(new Set());
+  const [cerrandoSesion, setCerrandoSesion] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("/api/panel-data", { cache: "no-store" });
+      const res = await fetchConTimeout("/api/panel-data", { cache: "no-store" });
 
       if (res.status === 401) {
         window.location.href = "/mediamaraton/panel";
@@ -41,8 +52,13 @@ export function PanelDashboard() {
       setData(json);
       setLastUpdated(new Date());
       setError(null);
-    } catch {
-      setError("No pudimos actualizar los datos. Reintentando...");
+    } catch (err) {
+      const timeoutMsg = "La conexión está lenta y no pudimos cargar los datos.";
+      setError(
+        err instanceof DOMException && err.name === "AbortError"
+          ? timeoutMsg
+          : "No pudimos actualizar los datos."
+      );
     }
   }, []);
 
@@ -55,7 +71,7 @@ export function PanelDashboard() {
   async function toggleCanjeado(id: string) {
     setPendientes((prev) => new Set(prev).add(id));
     try {
-      const res = await fetch("/api/panel-canjear", {
+      const res = await fetchConTimeout("/api/panel-canjear", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
@@ -81,6 +97,15 @@ export function PanelDashboard() {
     }
   }
 
+  async function cerrarSesion() {
+    setCerrandoSesion(true);
+    try {
+      await fetchConTimeout("/api/panel-auth", { method: "DELETE" });
+    } finally {
+      window.location.href = "/mediamaraton/panel";
+    }
+  }
+
   function exportarCsv() {
     if (!data) return;
     const encabezado = "nombre,telefono,codigo,canjeado,fecha\n";
@@ -102,20 +127,30 @@ export function PanelDashboard() {
 
   const registrosFiltrados = useMemo(() => {
     if (!data) return [];
+    let lista = data.registros;
+    if (soloPendientes) lista = lista.filter((r) => !r.canjeado);
     const q = busqueda.trim().toLowerCase();
-    if (!q) return data.registros;
-    return data.registros.filter(
+    if (!q) return lista;
+    return lista.filter(
       (r) =>
         r.nombre.toLowerCase().includes(q) ||
         r.telefono.includes(q) ||
         r.codigo.toLowerCase().includes(q)
     );
-  }, [data, busqueda]);
+  }, [data, busqueda, soloPendientes]);
 
   if (!data) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-vp-white/70">Cargando panel...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-vp-white/70">{error ?? "Cargando panel..."}</p>
+        {error && (
+          <button
+            onClick={fetchData}
+            className="rounded-full border border-vp-green/50 px-4 py-2 text-sm font-semibold text-vp-green transition hover:bg-vp-green/10"
+          >
+            Reintentar
+          </button>
+        )}
       </div>
     );
   }
@@ -124,19 +159,28 @@ export function PanelDashboard() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-5 py-8">
-      <header className="text-center">
-        <h1 className="font-display text-xl font-black tracking-tight text-vp-white uppercase sm:text-2xl">
-          Panel Mediamaratón
-        </h1>
-        <p className="mt-1 text-xs text-vp-white/50">
-          {lastUpdated
-            ? `Actualizado ${lastUpdated.toLocaleTimeString("es-CO", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}`
-            : ""}
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex-1 text-center">
+          <h1 className="font-display text-xl font-black tracking-tight text-vp-white uppercase sm:text-2xl">
+            Panel Mediamaratón
+          </h1>
+          <p className="mt-1 text-xs text-vp-white/50">
+            {lastUpdated
+              ? `Actualizado ${lastUpdated.toLocaleTimeString("es-CO", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}`
+              : ""}
+          </p>
+        </div>
+        <button
+          onClick={cerrarSesion}
+          disabled={cerrandoSesion}
+          className="shrink-0 rounded-full border border-vp-white/20 px-3 py-1.5 text-xs font-semibold text-vp-white/70 transition hover:bg-vp-white/10 disabled:opacity-50"
+        >
+          {cerrandoSesion ? "Saliendo..." : "Cerrar sesión"}
+        </button>
       </header>
 
       {error && <p className="text-center text-sm text-red-400">{error}</p>}
@@ -168,7 +212,7 @@ export function PanelDashboard() {
       <section className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-4 py-6 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)] sm:px-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-sm font-semibold text-vp-white">
-            Todos los registros ({registrosFiltrados.length})
+            Registros ({registrosFiltrados.length})
           </h2>
           <button
             onClick={exportarCsv}
@@ -178,13 +222,25 @@ export function PanelDashboard() {
           </button>
         </div>
 
-        <input
-          type="text"
-          placeholder="Buscar por nombre, teléfono o código..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="mb-4 w-full rounded-xl bg-vp-white px-4 py-2.5 text-sm text-vp-navy placeholder-vp-navy/40 outline-none ring-2 ring-transparent focus:ring-vp-green"
-        />
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, teléfono o código..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="flex-1 rounded-xl bg-vp-white px-4 py-2.5 text-sm text-vp-navy placeholder-vp-navy/40 outline-none ring-2 ring-transparent focus:ring-vp-green"
+          />
+          <button
+            onClick={() => setSoloPendientes((v) => !v)}
+            className={`shrink-0 rounded-xl border px-3 py-2.5 text-xs font-semibold transition ${
+              soloPendientes
+                ? "border-vp-green bg-vp-green text-vp-navy"
+                : "border-vp-white/30 text-vp-white/70 hover:bg-vp-white/10"
+            }`}
+          >
+            Solo pendientes
+          </button>
+        </div>
 
         {registrosFiltrados.length === 0 ? (
           <p className="text-sm text-vp-white/50">No hay registros que coincidan.</p>

@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, type FormEvent, type SVGProps } from "react";
+import { normalizarWhatsapp } from "../../whatsapp";
 
 type Props = {
   onSuccess: (codigo: string, nombre: string) => void;
 };
+
+const FETCH_TIMEOUT_MS = 15000;
 
 function IconPerson(props: SVGProps<SVGSVGElement>) {
   return (
@@ -37,28 +40,43 @@ export function RegistroForm({ onSuccess }: Props) {
       setError("Escribe tu nombre completo.");
       return;
     }
-    if (whatsapp.replace(/\D/g, "").length < 10) {
-      setError("Escribe un WhatsApp válido (10 dígitos).");
+    const telefono = normalizarWhatsapp(whatsapp);
+    if (!telefono) {
+      setError("Escribe un WhatsApp válido: 10 dígitos (ej. 3176408253).");
       return;
     }
 
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
     try {
       const res = await fetch("/api/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre: nombre.trim(), whatsapp: whatsapp.trim() }),
+        body: JSON.stringify({ nombre: nombre.trim(), whatsapp: telefono }),
+        signal: controller.signal,
       });
       const data = await res.json().catch(() => null);
 
       if (!res.ok || typeof data?.codigo !== "string") {
-        throw new Error("request-failed");
+        setError(
+          typeof data?.error === "string"
+            ? "Revisa tus datos: " + data.error
+            : "No pudimos guardar tu registro. Intenta de nuevo."
+        );
+        return;
       }
 
       onSuccess(data.codigo, nombre.trim());
-    } catch {
-      setError("No pudimos guardar tu registro. Intenta de nuevo.");
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setError("La conexión está muy lenta. Revisa tu señal e intenta de nuevo.");
+      } else {
+        setError("No pudimos guardar tu registro. Intenta de nuevo.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   }
@@ -66,7 +84,7 @@ export function RegistroForm({ onSuccess }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto flex w-full max-w-[420px] flex-col gap-3 px-5 pt-3 pb-5"
+      className="mx-auto flex w-full max-w-[420px] flex-col gap-2.5 px-5 pt-2 pb-4"
     >
       <div>
         <label
@@ -83,7 +101,7 @@ export function RegistroForm({ onSuccess }: Props) {
             placeholder="Nombre y apellido"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className="w-full rounded-xl bg-vp-white py-3 pr-4 pl-11 text-vp-navy placeholder-vp-navy/35 outline-none ring-2 ring-transparent focus:ring-vp-green"
+            className="w-full rounded-xl bg-vp-white py-2.5 pr-4 pl-11 text-vp-navy placeholder-vp-navy/35 outline-none ring-2 ring-transparent focus:ring-vp-green"
             autoComplete="name"
           />
         </div>
@@ -105,7 +123,7 @@ export function RegistroForm({ onSuccess }: Props) {
             placeholder="Ej. 3176408253"
             value={whatsapp}
             onChange={(e) => setWhatsapp(e.target.value)}
-            className="w-full rounded-xl bg-vp-white py-3 pr-4 pl-11 text-vp-navy placeholder-vp-navy/35 outline-none ring-2 ring-transparent focus:ring-vp-green"
+            className="w-full rounded-xl bg-vp-white py-2.5 pr-4 pl-11 text-vp-navy placeholder-vp-navy/35 outline-none ring-2 ring-transparent focus:ring-vp-green"
             autoComplete="tel"
           />
         </div>
@@ -116,7 +134,7 @@ export function RegistroForm({ onSuccess }: Props) {
       <button
         type="submit"
         disabled={loading}
-        className="mt-2 min-h-[44px] rounded-xl bg-vp-green px-6 py-3 text-base font-black tracking-tight text-vp-navy uppercase shadow-[0_10px_25px_-6px_rgba(111,174,45,0.55)] transition duration-200 ease-out hover:scale-[1.03] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+        className="mt-1.5 min-h-[44px] rounded-xl bg-vp-green px-6 py-3 text-base font-black tracking-tight text-vp-navy uppercase shadow-[0_10px_25px_-6px_rgba(111,174,45,0.55)] transition duration-200 ease-out hover:scale-[1.03] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
       >
         {loading ? "Enviando..." : "Quiero mi código de activación"}
       </button>

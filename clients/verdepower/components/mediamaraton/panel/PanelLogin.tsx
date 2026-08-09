@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 
+const FETCH_TIMEOUT_MS = 12000;
+
 export function PanelLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -11,11 +13,14 @@ export function PanelLogin() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
       const res = await fetch("/api/panel-auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -24,9 +29,14 @@ export function PanelLogin() {
       }
 
       window.location.reload();
-    } catch {
-      setError("No pudimos verificar la contraseña. Intenta de nuevo.");
+    } catch (err) {
+      setError(
+        err instanceof DOMException && err.name === "AbortError"
+          ? "La conexión está muy lenta. Intenta de nuevo."
+          : "No pudimos verificar la contraseña. Intenta de nuevo."
+      );
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   }

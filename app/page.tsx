@@ -11,10 +11,10 @@ export default function GanchoPage() {
 
       <Link
         href="/mediamaraton"
-        className="vp-reveal relative z-10 flex min-h-screen w-full flex-col items-center justify-center gap-6 py-10"
+        className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center gap-6 py-10"
       >
         <h1 className="font-display max-w-sm text-4xl leading-[1.05] font-black tracking-tight text-vp-white uppercase sm:max-w-lg sm:text-6xl">
-          Yo <span className="text-vp-green">NO CORRO</span> la Media Maratón
+          Yo <span className="text-vp-green">NO CORRO</span> la Mediamaratón
         </h1>
 
         <p className="text-base font-semibold tracking-wide text-vp-white/70 uppercase sm:text-lg">
