@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState, type SVGProps } from "react";
+import { useState, type SVGProps } from "react";
 import { Hero } from "./Hero";
 import { ProductBlock } from "./ProductBlock";
 import { RegistroForm } from "./RegistroForm";
 import { CodigoActivacion } from "./CodigoActivacion";
-
-const STORAGE_KEY = "vp-registro";
 
 type Registro = { codigo: string; nombre: string };
 
@@ -20,26 +18,7 @@ function IconLock(props: SVGProps<SVGSVGElement>) {
 }
 
 export function MediamaratonLanding() {
-  const [registro, setRegistroState] = useState<Registro | null>(null);
-
-  useEffect(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    try {
-      const parsed = JSON.parse(saved);
-      if (typeof parsed?.codigo === "string" && typeof parsed?.nombre === "string") {
-        setRegistroState(parsed);
-      }
-    } catch {
-      sessionStorage.removeItem(STORAGE_KEY);
-    }
-  }, []);
-
-  function guardarRegistro(codigo: string, nombre: string) {
-    const value = { codigo, nombre };
-    setRegistroState(value);
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-  }
+  const [registro, setRegistro] = useState<Registro | null>(null);
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-vp-navy">
@@ -55,7 +34,7 @@ export function MediamaratonLanding() {
         {registro ? (
           <CodigoActivacion nombre={registro.nombre} codigo={registro.codigo} />
         ) : (
-          <RegistroForm onSuccess={guardarRegistro} />
+          <RegistroForm onSuccess={(codigo, nombre) => setRegistro({ codigo, nombre })} />
         )}
 
         <p className="mx-auto flex items-center justify-center gap-1.5 pb-3 text-xs text-vp-white/70">

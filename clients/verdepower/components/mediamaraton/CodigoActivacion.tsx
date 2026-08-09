@@ -1,5 +1,4 @@
 import type { SVGProps } from "react";
-import { verdepowerConfig, mediamaratonConfig } from "../../config";
 import { Cupon } from "./Cupon";
 
 type Props = {
@@ -18,9 +17,6 @@ function IconCamera(props: SVGProps<SVGSVGElement>) {
 
 export function CodigoActivacion({ nombre, codigo }: Props) {
   const primerNombre = nombre.trim().split(/\s+/)[0] ?? nombre;
-  const urlWhatsapp = `https://wa.me/${verdepowerConfig.whatsappNumber}?text=${encodeURIComponent(
-    mediamaratonConfig.mensajeWhatsapp(codigo)
-  )}`;
 
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col items-center gap-3 px-5 pt-2 pb-4 text-center">
@@ -42,15 +38,6 @@ export function CodigoActivacion({ nombre, codigo }: Props) {
       </p>
 
       <Cupon codigo={codigo} />
-
-      <a
-        href={urlWhatsapp}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full min-h-[44px] rounded-xl bg-[#25D366] px-6 py-3 text-base font-bold text-vp-navy transition duration-200 ease-out hover:scale-[1.03] active:scale-[0.98]"
-      >
-        Enviar mi código por WhatsApp
-      </a>
 
       <p className="flex items-center justify-center gap-1.5 rounded-full border border-vp-white/20 px-4 py-2 text-xs text-vp-white/50">
         <IconCamera className="h-3.5 w-3.5" />
