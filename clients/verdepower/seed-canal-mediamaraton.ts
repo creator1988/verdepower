@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../../core/db/client";
 import { canales, clientes } from "../../core/db/schema";
 
-const NOMBRE_CANAL = "Mediamaratón Ciudad Bonita 2026";
+const NOMBRE_CANAL = "Media Maratón Ciudad Bonita 2026";
 
 async function main() {
   const [verdepower] = await db

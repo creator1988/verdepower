@@ -15,7 +15,7 @@ const body = Inter({
 
 export const metadata: Metadata = {
   title: "Verde Power",
-  description: "Verde Power — actívate antes de correr la Mediamaratón Ciudad Bonita.",
+  description: "Verde Power — actívate antes de correr la Media Maratón Ciudad Bonita.",
 };
 
 export default function RootLayout({

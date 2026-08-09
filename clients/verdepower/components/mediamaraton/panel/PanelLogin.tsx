@@ -48,7 +48,7 @@ export function PanelLogin() {
         className="flex w-full max-w-sm flex-col gap-4 rounded-3xl border border-vp-white/10 bg-vp-blue/30 p-8 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]"
       >
         <h1 className="font-display text-center text-2xl font-black tracking-tight text-vp-white uppercase">
-          Panel Mediamaratón
+          Panel Media Maratón
         </h1>
         <input
           type="password"

@@ -1,3 +1,5 @@
+import { Countdown } from "./Countdown";
+
 const SPEED_LINES = [
   { top: "15%", width: "50%", left: "0%" },
   { top: "32%", width: "65%", left: "6%" },
@@ -26,8 +28,9 @@ export function Hero() {
         No vas a correr sin activarte
       </h1>
       <p className="relative mt-1.5 text-xs font-semibold tracking-wide text-vp-green uppercase sm:text-sm">
-        Mediamaratón Ciudad Bonita · Bucaramanga · 16 de agosto
+        Media Maratón Ciudad Bonita · Bucaramanga · 16 de agosto
       </p>
+      <Countdown />
     </header>
   );
 }

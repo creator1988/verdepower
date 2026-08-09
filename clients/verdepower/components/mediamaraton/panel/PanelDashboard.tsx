@@ -162,7 +162,7 @@ export function PanelDashboard() {
       <header className="flex items-start justify-between gap-3">
         <div className="flex-1 text-center">
           <h1 className="font-display text-xl font-black tracking-tight text-vp-white uppercase sm:text-2xl">
-            Panel Mediamaratón
+            Panel Media Maratón
           </h1>
           <p className="mt-1 text-xs text-vp-white/50">
             {lastUpdated

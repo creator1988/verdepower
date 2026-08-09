@@ -14,7 +14,7 @@ export function Cupon({ codigo }: Props) {
           </p>
           <p className="mt-1 text-sm font-semibold text-vp-white/90">Aerosol Verde Power</p>
           <p className="mt-2 text-[0.65rem] text-vp-white/50">
-            Mediamaratón Ciudad Bonita · 16 de agosto
+            Media Maratón Ciudad Bonita · 16 de agosto
           </p>
         </div>
 
