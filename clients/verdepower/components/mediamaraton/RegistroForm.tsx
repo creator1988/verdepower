@@ -3,7 +3,7 @@
 import { useState, type FormEvent, type SVGProps } from "react";
 
 type Props = {
-  onSuccess: (codigo: string) => void;
+  onSuccess: (codigo: string, nombre: string) => void;
 };
 
 function IconPerson(props: SVGProps<SVGSVGElement>) {
@@ -55,7 +55,7 @@ export function RegistroForm({ onSuccess }: Props) {
         throw new Error("request-failed");
       }
 
-      onSuccess(data.codigo);
+      onSuccess(data.codigo, nombre.trim());
     } catch {
       setError("No pudimos guardar tu registro. Intenta de nuevo.");
     } finally {

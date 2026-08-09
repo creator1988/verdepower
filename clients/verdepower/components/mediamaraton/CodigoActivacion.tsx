@@ -1,6 +1,9 @@
 import type { SVGProps } from "react";
+import { verdepowerConfig, mediamaratonConfig } from "../../config";
+import { Cupon } from "./Cupon";
 
 type Props = {
+  nombre: string;
   codigo: string;
 };
 
@@ -13,9 +16,18 @@ function IconCamera(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function CodigoActivacion({ codigo }: Props) {
+export function CodigoActivacion({ nombre, codigo }: Props) {
+  const primerNombre = nombre.trim().split(/\s+/)[0] ?? nombre;
+  const urlWhatsapp = `https://wa.me/${verdepowerConfig.whatsappNumber}?text=${encodeURIComponent(
+    mediamaratonConfig.mensajeWhatsapp(codigo)
+  )}`;
+
   return (
     <div className="mx-auto flex w-full max-w-[420px] flex-col items-center gap-4 px-5 pt-3 pb-5 text-center">
+      <p className="font-display text-lg font-black tracking-tight text-vp-white uppercase">
+        ¡Listo, {primerNombre}!
+      </p>
+
       <div className="w-full rounded-2xl border-2 border-vp-green bg-vp-blue/30 px-6 py-6">
         <p className="text-xs font-semibold tracking-widest text-vp-green uppercase">
           Tu código de activación
@@ -29,9 +41,20 @@ export function CodigoActivacion({ codigo }: Props) {
         Muestra este código en el stand Verde Power para activarte
       </p>
 
+      <Cupon codigo={codigo} />
+
+      <a
+        href={urlWhatsapp}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full min-h-[44px] rounded-xl bg-[#25D366] px-6 py-3 text-base font-bold text-vp-navy transition duration-200 ease-out hover:scale-[1.03] active:scale-[0.98]"
+      >
+        Enviar mi código por WhatsApp
+      </a>
+
       <p className="flex items-center justify-center gap-1.5 rounded-full border border-vp-white/20 px-4 py-2 text-xs text-vp-white/50">
         <IconCamera className="h-3.5 w-3.5" />
-        Guarda una captura de pantalla de este código
+        Guarda una captura de pantalla de esta pantalla
       </p>
     </div>
   );

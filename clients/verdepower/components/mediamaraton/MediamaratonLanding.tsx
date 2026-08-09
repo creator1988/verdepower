@@ -16,7 +16,7 @@ function IconLock(props: SVGProps<SVGSVGElement>) {
 }
 
 export function MediamaratonLanding() {
-  const [codigo, setCodigo] = useState<string | null>(null);
+  const [registro, setRegistro] = useState<{ codigo: string; nombre: string } | null>(null);
 
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-vp-navy">
@@ -29,7 +29,11 @@ export function MediamaratonLanding() {
       <div className="relative z-10 flex flex-1 flex-col justify-center py-4">
         <Hero />
         <ProductBlock />
-        {codigo ? <CodigoActivacion codigo={codigo} /> : <RegistroForm onSuccess={setCodigo} />}
+        {registro ? (
+          <CodigoActivacion nombre={registro.nombre} codigo={registro.codigo} />
+        ) : (
+          <RegistroForm onSuccess={(codigo, nombre) => setRegistro({ codigo, nombre })} />
+        )}
 
         <p className="mx-auto flex items-center justify-center gap-1.5 pb-4 text-xs text-vp-white/40">
           <IconLock className="h-3.5 w-3.5" />
