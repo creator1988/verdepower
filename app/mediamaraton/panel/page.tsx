@@ -11,7 +11,7 @@ export default async function PanelPage() {
   const authenticated = isValidPanelToken(token);
 
   return (
-    <main className="min-h-screen bg-vp-forest-dark">
+    <main className="min-h-screen bg-vp-navy">
       {authenticated ? <PanelDashboard /> : <PanelLogin />}
     </main>
   );

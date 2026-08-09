@@ -93,6 +93,7 @@ export const contactos = pgTable(
     nombre: text("nombre").notNull(),
     telefono: text("telefono").notNull(),
     email: text("email"),
+    codigo: text("codigo"),
 
     canalId: uuid("canal_id")
       .notNull()
@@ -112,6 +113,7 @@ export const contactos = pgTable(
     index("idx_contactos_canal_id").on(table.canalId),
     index("idx_contactos_estado_pipeline").on(table.clientId, table.estadoPipeline),
     uniqueIndex("idx_contactos_telefono_unico").on(table.clientId, table.telefono),
+    uniqueIndex("idx_contactos_codigo_unico").on(table.codigo),
   ]
 );
 

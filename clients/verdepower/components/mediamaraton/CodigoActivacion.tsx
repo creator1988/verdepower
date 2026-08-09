@@ -1,0 +1,38 @@
+import type { SVGProps } from "react";
+
+type Props = {
+  codigo: string;
+};
+
+function IconCamera(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
+export function CodigoActivacion({ codigo }: Props) {
+  return (
+    <div className="mx-auto flex w-full max-w-[420px] flex-col items-center gap-4 px-5 pt-3 pb-5 text-center">
+      <div className="w-full rounded-2xl border-2 border-vp-green bg-vp-blue/30 px-6 py-6">
+        <p className="text-xs font-semibold tracking-widest text-vp-green uppercase">
+          Tu código de activación
+        </p>
+        <p className="font-display mt-2 text-5xl font-black tracking-[0.2em] text-vp-white sm:text-6xl">
+          {codigo}
+        </p>
+      </div>
+
+      <p className="text-sm font-medium text-vp-white/80">
+        Muestra este código en el stand Verde Power para activarte
+      </p>
+
+      <p className="flex items-center justify-center gap-1.5 rounded-full border border-vp-white/20 px-4 py-2 text-xs text-vp-white/50">
+        <IconCamera className="h-3.5 w-3.5" />
+        Guarda una captura de pantalla de este código
+      </p>
+    </div>
+  );
+}

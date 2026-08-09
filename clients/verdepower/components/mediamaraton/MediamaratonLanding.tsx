@@ -1,28 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type SVGProps } from "react";
 import { Hero } from "./Hero";
 import { ProductBlock } from "./ProductBlock";
-import { CaptureForm } from "./CaptureForm";
-import { WhatsAppCTA } from "./WhatsAppCTA";
+import { RegistroForm } from "./RegistroForm";
+import { CodigoActivacion } from "./CodigoActivacion";
+
+function IconLock(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </svg>
+  );
+}
 
 export function MediamaratonLanding() {
-  const [enviado, setEnviado] = useState(false);
+  const [codigo, setCodigo] = useState<string | null>(null);
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-vp-forest-dark">
+    <main className="relative flex min-h-screen flex-col overflow-hidden bg-vp-navy">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="vp-parallax-1 absolute -top-24 -right-20 h-72 w-72 rounded-full bg-vp-moss opacity-25 blur-3xl sm:h-96 sm:w-96" />
-        <div className="vp-parallax-2 absolute top-[55%] -left-28 h-80 w-80 rounded-full bg-vp-forest opacity-30 blur-3xl sm:h-[26rem] sm:w-[26rem]" />
-        <div className="vp-parallax-3 absolute bottom-10 -right-16 h-64 w-64 rounded-full bg-vp-moss opacity-20 blur-3xl" />
+        <div className="absolute -top-24 -right-20 h-72 w-72 rounded-full bg-vp-blue opacity-40 blur-3xl" />
+        <div className="absolute bottom-0 -left-24 h-72 w-72 rounded-full bg-vp-green opacity-15 blur-3xl" />
         <div className="vp-noise absolute inset-0" />
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col">
+      <div className="relative z-10 flex flex-1 flex-col justify-center py-4">
         <Hero />
         <ProductBlock />
-        {enviado ? <WhatsAppCTA /> : <CaptureForm onSuccess={() => setEnviado(true)} />}
-        <div className="h-16" />
+        {codigo ? <CodigoActivacion codigo={codigo} /> : <RegistroForm onSuccess={setCodigo} />}
+
+        <p className="mx-auto flex items-center justify-center gap-1.5 pb-4 text-xs text-vp-white/40">
+          <IconLock className="h-3.5 w-3.5" />
+          Tus datos están seguros · Hecho en Colombia
+        </p>
       </div>
     </main>
   );

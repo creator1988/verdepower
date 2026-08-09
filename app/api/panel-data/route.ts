@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
   const rows = await db
     .select({
       nombre: contactos.nombre,
+      codigo: contactos.codigo,
       createdAt: contactos.createdAt,
-      metadata: contactos.metadata,
     })
     .from(contactos)
     .where(
@@ -53,15 +53,8 @@ export async function GET(req: NextRequest) {
       )
     );
 
-  let antes = 0;
-  let despues = 0;
   const porHoraMap = new Map<string, number>();
-
   for (const row of rows) {
-    const momento = (row.metadata as { momento_activacion?: string } | null)?.momento_activacion;
-    if (momento === "antes") antes++;
-    else if (momento === "despues") despues++;
-
     const key = hourKey(row.createdAt);
     porHoraMap.set(key, (porHoraMap.get(key) ?? 0) + 1);
   }
@@ -73,12 +66,14 @@ export async function GET(req: NextRequest) {
   const ultimos = [...rows]
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 10)
-    .map((r) => ({ nombre: r.nombre, hora: bogotaTimeFmt.format(r.createdAt) }));
+    .map((r) => ({
+      nombre: r.nombre,
+      codigo: r.codigo ?? "—",
+      hora: bogotaTimeFmt.format(r.createdAt),
+    }));
 
   return NextResponse.json({
     total: rows.length,
-    antes,
-    despues,
     porHora,
     ultimos,
   });

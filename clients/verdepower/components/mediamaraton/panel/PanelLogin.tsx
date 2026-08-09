@@ -35,9 +35,9 @@ export function PanelLogin() {
     <div className="flex min-h-screen flex-col items-center justify-center px-6">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-4 rounded-3xl bg-[radial-gradient(circle_at_center,_#E7F0DC_0%,_#FBFBF8_75%)] p-8 shadow-[0_30px_60px_-20px_rgba(30,66,32,0.45)]"
+        className="flex w-full max-w-sm flex-col gap-4 rounded-3xl border border-vp-white/10 bg-vp-blue/30 p-8 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]"
       >
-        <h1 className="text-center font-serif text-2xl font-semibold text-vp-ink">
+        <h1 className="font-display text-center text-2xl font-black tracking-tight text-vp-white uppercase">
           Panel Mediamaratón
         </h1>
         <input
@@ -47,13 +47,13 @@ export function PanelLogin() {
           onChange={(e) => setPassword(e.target.value)}
           autoFocus
           autoComplete="current-password"
-          className="rounded-xl bg-white px-4 py-3 text-vp-ink outline-none ring-2 ring-transparent focus:ring-vp-moss"
+          className="rounded-xl bg-vp-white px-4 py-3 text-vp-navy outline-none ring-2 ring-transparent focus:ring-vp-green"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
         <button
           type="submit"
           disabled={loading || password.length === 0}
-          className="rounded-xl bg-gradient-to-b from-[#97BC62] to-[#6B8E4E] px-6 py-3 text-base font-bold text-vp-ink shadow-[0_10px_25px_-6px_rgba(151,188,98,0.55)] transition active:scale-[0.98] disabled:opacity-60"
+          className="rounded-xl bg-vp-green px-6 py-3 text-base font-bold text-vp-navy shadow-[0_10px_25px_-6px_rgba(111,174,45,0.55)] transition active:scale-[0.98] disabled:opacity-60"
         >
           {loading ? "Verificando..." : "Entrar"}
         </button>

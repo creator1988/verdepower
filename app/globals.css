@@ -1,19 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-vp-forest: #2c5f2d;
-  --color-vp-forest-dark: #1e4220;
-  --color-vp-moss: #97bc62;
-  --color-vp-cream: #fbfbf8;
-  --color-vp-ink: #233022;
+  --color-vp-navy: #0f1b3d;
+  --color-vp-blue: #1b3b6f;
+  --color-vp-green: #6fae2d;
+  --color-vp-white: #ffffff;
 
-  --font-serif: var(--font-editorial);
+  --font-display: var(--font-montserrat);
   --font-sans: var(--font-body);
 }
 
 body {
-  background-color: var(--color-vp-forest-dark);
-  color: var(--color-vp-cream);
+  background-color: var(--color-vp-navy);
+  color: var(--color-vp-white);
 }
 
 @keyframes vp-mist {
@@ -53,33 +52,6 @@ body {
   }
 }
 
-@keyframes vp-parallax-1 {
-  from {
-    transform: translateY(-24px);
-  }
-  to {
-    transform: translateY(36px);
-  }
-}
-
-@keyframes vp-parallax-2 {
-  from {
-    transform: translateY(16px);
-  }
-  to {
-    transform: translateY(-44px);
-  }
-}
-
-@keyframes vp-parallax-3 {
-  from {
-    transform: translateY(-10px);
-  }
-  to {
-    transform: translateY(28px);
-  }
-}
-
 .vp-mist-circle {
   animation: vp-mist 1.15s ease-out 1 forwards;
 }
@@ -100,21 +72,6 @@ body {
   mix-blend-mode: overlay;
 }
 
-@supports (animation-timeline: scroll()) {
-  .vp-parallax-1 {
-    animation: vp-parallax-1 linear both;
-    animation-timeline: scroll(root);
-  }
-  .vp-parallax-2 {
-    animation: vp-parallax-2 linear both;
-    animation-timeline: scroll(root);
-  }
-  .vp-parallax-3 {
-    animation: vp-parallax-3 linear both;
-    animation-timeline: scroll(root);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .vp-mist-circle {
     animation: none;
@@ -126,11 +83,6 @@ body {
     transform: none;
   }
   .vp-icon-pop {
-    animation: none;
-  }
-  .vp-parallax-1,
-  .vp-parallax-2,
-  .vp-parallax-3 {
     animation: none;
   }
 }
