@@ -86,6 +86,10 @@ export function RegistroForm({ onSuccess }: Props) {
       onSubmit={handleSubmit}
       className="mx-auto flex w-full max-w-[420px] flex-col gap-2.5 px-5 pt-2 pb-4"
     >
+      <p className="font-display mb-1 text-center text-base leading-tight font-black tracking-tight text-vp-white uppercase sm:text-lg">
+        Deja tus datos y activa tus músculos <span className="text-vp-green">gratis</span> en el stand
+      </p>
+
       <div>
         <label
           htmlFor="nombre"
