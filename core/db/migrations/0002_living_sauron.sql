@@ -1,0 +1,1 @@
+ALTER TABLE "contactos" ADD COLUMN "canjeado_en" timestamp with time zone;

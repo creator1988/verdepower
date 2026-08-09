@@ -1,11 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+type Registro = {
+  id: string;
+  nombre: string;
+  telefono: string;
+  codigo: string;
+  canjeado: boolean;
+  hora: string;
+};
 
 type PanelData = {
   total: number;
+  canjeados: number;
   porHora: { hora: string; cantidad: number }[];
-  ultimos: { nombre: string; codigo: string; hora: string }[];
+  registros: Registro[];
 };
 
 const POLL_INTERVAL_MS = 18000;
@@ -14,6 +24,8 @@ export function PanelDashboard() {
   const [data, setData] = useState<PanelData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [pendientes, setPendientes] = useState<Set<string>>(new Set());
 
   const fetchData = useCallback(async () => {
     try {
@@ -40,6 +52,66 @@ export function PanelDashboard() {
     return () => clearInterval(id);
   }, [fetchData]);
 
+  async function toggleCanjeado(id: string) {
+    setPendientes((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch("/api/panel-canjear", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error("request-failed");
+      const { canjeadoEn } = await res.json();
+
+      setData((prev) => {
+        if (!prev) return prev;
+        const canjeado = Boolean(canjeadoEn);
+        const registros = prev.registros.map((r) => (r.id === id ? { ...r, canjeado } : r));
+        const canjeados = registros.filter((r) => r.canjeado).length;
+        return { ...prev, registros, canjeados };
+      });
+    } catch {
+      setError("No pudimos actualizar el canje. Intenta de nuevo.");
+    } finally {
+      setPendientes((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
+
+  function exportarCsv() {
+    if (!data) return;
+    const encabezado = "nombre,telefono,codigo,canjeado,fecha\n";
+    const filas = data.registros
+      .map((r) =>
+        [r.nombre, r.telefono, r.codigo, r.canjeado ? "si" : "no", r.hora]
+          .map((v) => `"${v.replace(/"/g, '""')}"`)
+          .join(",")
+      )
+      .join("\n");
+    const blob = new Blob([encabezado + filas], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `mediamaraton-registros-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const registrosFiltrados = useMemo(() => {
+    if (!data) return [];
+    const q = busqueda.trim().toLowerCase();
+    if (!q) return data.registros;
+    return data.registros.filter(
+      (r) =>
+        r.nombre.toLowerCase().includes(q) ||
+        r.telefono.includes(q) ||
+        r.codigo.toLowerCase().includes(q)
+    );
+  }, [data, busqueda]);
+
   if (!data) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -51,7 +123,7 @@ export function PanelDashboard() {
   const maxHora = Math.max(...data.porHora.map((h) => h.cantidad), 1);
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-5 py-8">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-5 py-8">
       <header className="text-center">
         <h1 className="font-display text-xl font-black tracking-tight text-vp-white uppercase sm:text-2xl">
           Panel Mediamaratón
@@ -69,11 +141,19 @@ export function PanelDashboard() {
 
       {error && <p className="text-center text-sm text-red-400">{error}</p>}
 
-      <section className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-6 py-8 text-center shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]">
-        <p className="text-6xl font-black text-vp-white sm:text-7xl">{data.total}</p>
-        <p className="mt-2 text-sm font-medium tracking-wide text-vp-green uppercase">
-          registros capturados
-        </p>
+      <section className="grid grid-cols-2 gap-4">
+        <div className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-6 py-8 text-center shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+          <p className="text-5xl font-black text-vp-white sm:text-6xl">{data.total}</p>
+          <p className="mt-2 text-xs font-medium tracking-wide text-vp-green uppercase">
+            registros
+          </p>
+        </div>
+        <div className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-6 py-8 text-center shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+          <p className="text-5xl font-black text-vp-white sm:text-6xl">{data.canjeados}</p>
+          <p className="mt-2 text-xs font-medium tracking-wide text-vp-green uppercase">
+            canjeados
+          </p>
+        </div>
       </section>
 
       <section className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-6 py-6 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]">
@@ -85,20 +165,56 @@ export function PanelDashboard() {
         )}
       </section>
 
-      <section className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-6 py-6 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]">
-        <h2 className="mb-4 text-sm font-semibold text-vp-white">Últimos registros</h2>
-        {data.ultimos.length === 0 ? (
-          <p className="text-sm text-vp-white/50">Aún no hay registros.</p>
+      <section className="rounded-3xl border border-vp-white/10 bg-vp-blue/30 px-4 py-6 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)] sm:px-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold text-vp-white">
+            Todos los registros ({registrosFiltrados.length})
+          </h2>
+          <button
+            onClick={exportarCsv}
+            className="rounded-full border border-vp-green/50 px-3 py-1.5 text-xs font-semibold text-vp-green transition hover:bg-vp-green/10"
+          >
+            Exportar CSV
+          </button>
+        </div>
+
+        <input
+          type="text"
+          placeholder="Buscar por nombre, teléfono o código..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="mb-4 w-full rounded-xl bg-vp-white px-4 py-2.5 text-sm text-vp-navy placeholder-vp-navy/40 outline-none ring-2 ring-transparent focus:ring-vp-green"
+        />
+
+        {registrosFiltrados.length === 0 ? (
+          <p className="text-sm text-vp-white/50">No hay registros que coincidan.</p>
         ) : (
-          <ul className="flex flex-col divide-y divide-vp-white/10">
-            {data.ultimos.map((u, i) => (
-              <li key={i} className="flex items-center justify-between py-2 text-sm">
-                <span className="font-medium text-vp-white">{u.nombre}</span>
-                <span className="font-mono text-vp-green">{u.codigo}</span>
-                <span className="text-vp-white/50">{u.hora}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="max-h-[420px] overflow-y-auto">
+            <ul className="flex flex-col divide-y divide-vp-white/10">
+              {registrosFiltrados.map((r) => (
+                <li key={r.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-vp-white">{r.nombre}</p>
+                    <p className="text-xs text-vp-white/50">
+                      {r.telefono} · {r.hora}
+                    </p>
+                  </div>
+                  <span className="font-mono text-xs font-semibold text-vp-green">{r.codigo}</span>
+                  <button
+                    onClick={() => toggleCanjeado(r.id)}
+                    disabled={pendientes.has(r.id)}
+                    className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50 ${
+                      r.canjeado
+                        ? "border-vp-green bg-vp-green text-vp-navy"
+                        : "border-vp-white/30 text-vp-white/70 hover:bg-vp-white/10"
+                    }`}
+                  >
+                    {r.canjeado ? "Canjeado ✓" : "Marcar canje"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
     </div>

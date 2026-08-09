@@ -52,6 +52,22 @@ body {
   }
 }
 
+@keyframes vp-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+.vp-bounce {
+  animation: vp-bounce 1.6s ease-in-out infinite;
+}
+
 .vp-mist-circle {
   animation: vp-mist 1.15s ease-out 1 forwards;
 }
@@ -83,6 +99,9 @@ body {
     transform: none;
   }
   .vp-icon-pop {
+    animation: none;
+  }
+  .vp-bounce {
     animation: none;
   }
 }

@@ -104,6 +104,7 @@ export const contactos = pgTable(
 
     notas: text("notas"),
     metadata: jsonb("metadata").notNull().default({}),
+    canjeadoEn: timestamp("canjeado_en", { withTimezone: true }),
 
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

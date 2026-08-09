@@ -22,7 +22,10 @@ export function Hero() {
         ))}
       </div>
 
-      <h1 className="font-display relative mx-auto max-w-[20rem] text-[1.75rem] leading-[1.05] font-black tracking-tight text-vp-white uppercase sm:max-w-md sm:text-4xl">
+      <p className="relative mx-auto max-w-[20rem] text-sm font-semibold tracking-wide text-vp-white/60 uppercase sm:max-w-md">
+        ...sin activar primero mis músculos con Verde Power
+      </p>
+      <h1 className="font-display relative mx-auto mt-1 max-w-[20rem] text-[1.75rem] leading-[1.05] font-black tracking-tight text-vp-white uppercase sm:max-w-md sm:text-4xl">
         No vas a correr sin activarte
       </h1>
       <p className="relative mt-2 text-xs font-semibold tracking-wide text-vp-green uppercase sm:text-sm">

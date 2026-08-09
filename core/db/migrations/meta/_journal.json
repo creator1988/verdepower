@@ -15,6 +15,13 @@
       "when": 1786298541383,
       "tag": "0001_nasty_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786301991755,
+      "tag": "0002_living_sauron",
+      "breakpoints": true
     }
   ]
 }
